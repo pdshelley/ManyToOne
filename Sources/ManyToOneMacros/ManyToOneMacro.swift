@@ -23,9 +23,34 @@ public struct ManyToOneMacro: MemberMacro {
         let initializer = try InitializerDeclSyntax("init?(rawValue: String)") {
             try SwitchExprSyntax("switch rawValue") {
                 for element in elements {
-//                    for value in element.rawValue {
-//                        value.
-//                    }
+                    if let initializerClause = element.rawValue {
+                        let expression = initializerClause.value
+                        if expression.is(StringLiteralExprSyntax.self) {
+                            if let stringLiteralExpression = expression.as(StringLiteralExprSyntax.self) {
+                                if let stringValue = stringLiteralExpression.representedLiteralValue {
+                                    SwitchCaseSyntax(
+                                        """
+                                        case "\(raw: stringValue)": self = .\(element.name)
+                                        """
+                                    )
+                                }
+//                                let stringValue = stringLiteralExpression.segments.first
+//                                strin
+                            }
+                            
+//                            print("StringLiteralExprSyntax")
+                        }
+//                        for value in element.rawValue {
+//                            value.
+//                        }
+                    } else {
+                        SwitchCaseSyntax(
+                            """
+                            case "\(element.name)": self = .\(element.name)
+                            """
+                        )
+                    }
+                    
                     
                     // case paris = "Paris"
 //                    EnumCaseElementSyntax
@@ -74,11 +99,7 @@ public struct ManyToOneMacro: MemberMacro {
                     
                     // case "\(stringSegment)": self = .\(element.name)
                     
-                    SwitchCaseSyntax(
-                        """
-                        case "\(element.name)": self = .\(element.name)
-                        """
-                    )
+                    
                 }
                 SwitchCaseSyntax(
                     """
