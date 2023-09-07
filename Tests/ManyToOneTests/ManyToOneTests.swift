@@ -79,4 +79,38 @@ final class ManyToOneTests: XCTestCase {
             """,
             macros: testMacros)
     }
+    
+    func testSingleORStringValue() {
+        assertMacroExpansion(
+            """
+            @ManyToOne
+            enum location: String {
+                case paris = "Paris"
+                case newYork = "New York" || "NY"
+                case chicago = "Chicago"
+            }
+            """, expandedSource: """
+            enum location: String {
+                case paris = "Paris"
+                case newYork = "New York"
+                case chicago = "Chicago"
+
+                init?(rawValue: String) {
+                    switch rawValue {
+                    case "Paris":
+                        self = .paris
+                    case "New York":
+                        self = .newYork
+                    case "NY":
+                        self = .newYork
+                    case "Chicago":
+                        self = .chicago
+                    default:
+                        fatalError("No Coding Key for: ")
+                    }
+                }
+            }
+            """,
+            macros: testMacros)
+    }
 }
