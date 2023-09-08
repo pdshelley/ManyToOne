@@ -55,13 +55,13 @@ final class ManyToOneTests: XCTestCase {
             enum location: String {
                 case paris = "Paris"
                 case newYork = "New York"
-                case chicago = "Chicago"
+                case chicago
             }
             """, expandedSource: """
             enum location: String {
                 case paris = "Paris"
                 case newYork = "New York"
-                case chicago = "Chicago"
+                case chicago
 
                 init?(rawValue: String) {
                     switch rawValue {
@@ -69,7 +69,7 @@ final class ManyToOneTests: XCTestCase {
                         self = .paris
                     case "New York":
                         self = .newYork
-                    case "Chicago":
+                    case "chicago":
                         self = .chicago
                     default:
                         fatalError("No Coding Key for: ")
@@ -102,6 +102,42 @@ final class ManyToOneTests: XCTestCase {
                     case "New York":
                         self = .newYork
                     case "NY":
+                        self = .newYork
+                    case "Chicago":
+                        self = .chicago
+                    default:
+                        fatalError("No Coding Key for: ")
+                    }
+                }
+            }
+            """,
+            macros: testMacros)
+    }
+    
+    func testDoubleORStringValues() {
+        assertMacroExpansion(
+            """
+            @ManyToOne
+            enum location: String {
+                case paris = "Paris"
+                case newYork = "New York" || "NY" || "ny"
+                case chicago = "Chicago"
+            }
+            """, expandedSource: """
+            enum location: String {
+                case paris = "Paris"
+                case newYork = "New York"
+                case chicago = "Chicago"
+
+                init?(rawValue: String) {
+                    switch rawValue {
+                    case "Paris":
+                        self = .paris
+                    case "New York":
+                        self = .newYork
+                    case "NY":
+                        self = .newYork
+                    case "ny":
                         self = .newYork
                     case "Chicago":
                         self = .chicago
