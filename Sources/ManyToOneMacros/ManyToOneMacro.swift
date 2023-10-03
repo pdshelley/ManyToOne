@@ -41,22 +41,22 @@ public struct ManyToOneMacro: MemberMacro {
                     if let initializerClause = enumCase.rawValue {
                         let expression = initializerClause.value
                         
+                        // Triggers when the enum case has a single raw value.
                         if let stringLiteralExpression = expression.as(StringLiteralExprSyntax.self) {
-                            // Triggers when the enum case has a single raw value.
                             makeSwitchCaseSyntaxFrom(name: stringLiteralExpression, rawValue: enumCase.name.text)
                         }
                         
-                        
+                        // Triggers when the enum has multiple raw values.
                         if let sequenceExprSyntax = expression.as(SequenceExprSyntax.self) {
                             if let elements = sequenceExprSyntax.elements.as(ExprListSyntax.self) {
                                 for element in elements {
                                     if let stringLiteralExpression = element.as(StringLiteralExprSyntax.self) {
-                                        // Triggers when the enum has multiple raw values.
                                         makeSwitchCaseSyntaxFrom(name: stringLiteralExpression, rawValue: enumCase.name.text)
                                     }
                                 }
                             }
                         }
+                        
                     } else {
                         // Triggers when the enum case does not have a raw value.
                         makeSwitchCaseSyntax(name: enumCase.name.text, rawValue: enumCase.name.text)
@@ -84,9 +84,11 @@ struct ManyToOnePlugin: CompilerPlugin {
 }
 
 
+// Example of: case paris
+//                    EnumCaseElementSyntax
+//                    ╰─name: identifier("paris")
 
-
-// case paris = "Paris"
+// Example of: case paris = "Paris"
 //                    EnumCaseElementSyntax
 //                    ├─name: identifier("paris")
 //                    ╰─rawValue: InitializerClauseSyntax
@@ -98,11 +100,7 @@ struct ManyToOnePlugin: CompilerPlugin {
 //                        │   ╰─content: stringSegment("Paris")
 //                        ╰─closingQuote: stringQuote
 
-// case paris
-//                    EnumCaseElementSyntax
-//                    ╰─name: identifier("paris")
-
-// case paris = "Paris" || "France"
+// Example of: case paris = "Paris" || "France"
 //                    EnumCaseElementSyntax
 //                    ├─name: identifier("paris")
 //                    ╰─rawValue: InitializerClauseSyntax
@@ -123,12 +121,3 @@ struct ManyToOnePlugin: CompilerPlugin {
 //                            │ ╰─[0]: StringSegmentSyntax
 //                            │   ╰─content: stringSegment("France")
 //                            ╰─closingQuote: stringQuote
-
-
-
-// case "Paris": self = .paris
-
-// if let stringSegment {}
-// else use element.name
-
-// case "\(stringSegment)": self = .\(element.name)
